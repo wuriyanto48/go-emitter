@@ -44,7 +44,7 @@ func (e *Emitter[T]) Emit(event string, eventArg T) {
 				wg.Add(1)
 				go func(aC chan T, wg *sync.WaitGroup) {
 					defer func() { wg.Done() }()
-					fmt.Println("send..")
+					
 					select {
 					case aC <- eventArg:
 					case <-e.ctx.Done():
