@@ -44,6 +44,13 @@ func main() {
 		wg.Done()
 	})
 
+	// this event handler will not be processed
+	em2.On("undefined_event", func(arg string, wg *sync.WaitGroup) {
+		time.Sleep(2 * time.Second)
+		fmt.Println("processed: ", arg)
+		wg.Done()
+	})
+
 	em1.Emit("succeed", Data{X: 10, Y: 5})
 	em1.Emit("succeed", Data{X: 100, Y: 5})
 	em1.Emit("succeed", Data{X: 2, Y: 2})
