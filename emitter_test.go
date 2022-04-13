@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 	"sync"
+	"time"
+	"log"
 )
 
 type Arg struct {
@@ -31,7 +33,6 @@ func TestEmitter(t *testing.T) {
 			t.Error("err is not *Err")
 		}
 
-		
 		wg.Done()
 	})
 
@@ -39,15 +40,25 @@ func TestEmitter(t *testing.T) {
 
 	em.Wait()
 
-	// -----------------------------------------------
+}
 
-	emCalc := NewEmitter[Arg](context.Background())
+func TestEmitterWithDelay(t *testing.T) {
+
+	ctx, cancel := context.WithCancel(context.Background())
+	// ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*800)
+	defer func() { cancel() }()
+
+	emCalc := NewEmitter[Arg](ctx)
 
 	emCalc.On("sum", func(arg Arg, wg *sync.WaitGroup) {
+		// simulate heavy work
+		time.Sleep(3 * time.Second)
+
 		res := arg.X + arg.Y
-		if res != 10 {
+		if res != 11 {
 			t.Error("res is not equal to 10")
 		}
+		log.Printf(" res : %d\n", res)
 
 		wg.Done()
 	})
@@ -55,4 +66,5 @@ func TestEmitter(t *testing.T) {
 	emCalc.Emit("sum", Arg{X: 5, Y: 5})
 
 	emCalc.Wait()
+
 }
