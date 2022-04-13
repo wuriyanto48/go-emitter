@@ -23,7 +23,6 @@ func main() {
 	defer func() { cancel() }()
 
 	em1 := emitter.NewEmitter[Data](ctx)
-	em2 := emitter.NewEmitter[string](ctx)
 
 	// em1.On("succeed", func(arg Data) {
 	// 	z := arg.X * arg.Y
@@ -38,6 +37,17 @@ func main() {
 		wg.Done()
 	})
 
+	em1.Emit("succeed", Data{X: 10, Y: 5})
+	em1.Emit("succeed", Data{X: 100, Y: 5})
+	em1.Emit("succeed", Data{X: 2, Y: 2})
+	em1.Emit("succeed", Data{X: 10, Y: 10})
+
+	em1.Wait()
+
+	// ------------------------------------------------------
+
+	em2 := emitter.NewEmitter[string](ctx)
+	
 	em2.On("progress", func(arg string, wg *sync.WaitGroup) {
 		time.Sleep(2 * time.Second)
 		fmt.Println("processed: ", arg)
@@ -51,17 +61,10 @@ func main() {
 		wg.Done()
 	})
 
-	em1.Emit("succeed", Data{X: 10, Y: 5})
-	em1.Emit("succeed", Data{X: 100, Y: 5})
-	em1.Emit("succeed", Data{X: 2, Y: 2})
-	em1.Emit("succeed", Data{X: 10, Y: 10})
-
 	em2.Emit("progress", "run....")
 	em2.Emit("progress", "ron....")
 	em2.Emit("progress", "ren....")
-	// time.Sleep(2 * time.Second)
 
-	em1.Wait()
 	em2.Wait()
 
 	elapsed := time.Since(start)
