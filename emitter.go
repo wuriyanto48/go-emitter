@@ -80,7 +80,7 @@ func (e *Emitter[T]) On(event string, handler EventFunc[T]) {
 			case <-e.ctx.Done():
 				fmt.Printf("handler canceled\n")
 				return
-			default:
+			default: // add default case to avoid blocking from this try-receive operation
 			}
 
 			select {
